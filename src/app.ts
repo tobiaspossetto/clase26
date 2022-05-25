@@ -6,7 +6,7 @@ import session from 'express-session'
 import routes from './routes/routes'
 
 import cookieParser from 'cookie-parser'
-import './utils/passport/local-auth'
+import './middleware/passport/local-auth'
 import passport from 'passport'
 
 const app = express()
@@ -20,7 +20,10 @@ app.use(session({
 //  store: MongoStore.create({ mongoUrl: `mongodb+srv://tobias:${process.env.MONGODB_ATLAS_PASSWORD}@cluster0.ulmpx.mongodb.net/ecommerce?retryWrites=true&w=majority`, ttl: 60 }),
   secret: 'iosadyh23bu',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 600000
+  }
 }))
 app.use(passport.initialize())
 app.use(passport.session())

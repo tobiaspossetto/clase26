@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
+    // @ts-ignore
+    console.log(req.user)
     return next()
   } else {
     res.redirect('/signin')

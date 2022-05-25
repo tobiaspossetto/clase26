@@ -15,7 +15,8 @@ router.get('/signup', (req: Request, res: Response) => {
 })
 
 router.get('/', isAuth, (req:Request, res:Response) => {
-  res.render('products.pug')
+// @ts-ignore
+  res.render('products.pug', { username: req.user.email })
 })
 
 router.get('/test', (req:Request, res:Response) => {
@@ -36,7 +37,7 @@ router.post('/api/signin', passport.authenticate('local-signin', {
 
 router.post('/api/signup', passport.authenticate('local-signup', {
   successRedirect: '/',
-  failureRedirect: '/errorAuth',
+  failureRedirect: '/signInError',
   passReqToCallback: true
 }))
 
@@ -49,7 +50,7 @@ router.get('/api/logout', isAuth, (req, res, next) => {
 })
 
 router.get('/errorAuth', (req, res) => {
-  res.send('error auth')
+  console.log(req.body)
 })
 
 export default router

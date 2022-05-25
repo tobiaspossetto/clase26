@@ -11,8 +11,4 @@ UserSchema.methods.encryptPassword = (password) => {
   return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
 }
 
-UserSchema.methods.validPassword = function (password) {
-  // @ts-ignore
-  return bcrypt.compareSync(password, this.password)
-}
 export const User = mongoose.model(userCollection, UserSchema)

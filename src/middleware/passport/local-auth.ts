@@ -1,15 +1,18 @@
 import passport from 'passport'
 import { Strategy } from 'passport-local'
 import { User } from '../../db/models/user'
+
+import { validPassword } from '../../utils/validPassword'
 passport.serializeUser((user, done) => {
   // @ts-ignore
-  done(null, user.id)
+  done(null, user)
 })
 
 passport.deserializeUser(async (id, done) => {
   const user = await User.findById(id)
 
-  done(null, user)
+  // @ts-ignore
+  done(null, { id: user._id, email: user.email })
 })
 
 passport.use('local-signup', new Strategy({
@@ -17,7 +20,7 @@ passport.use('local-signup', new Strategy({
   passwordField: 'password',
   passReqToCallback: true
 }, async (req, email, password, done) => {
-  const userExists = await User.findOne({ email })
+  const userExists = await User.find({ email })
 
   if (userExists) {
     return done(null, false)
@@ -42,14 +45,15 @@ passport.use('local-signin', new Strategy({
 }, async (req, email, password, done) => {
   try {
     console.log('BUSCANDO...')
+
     const user = await User.findOne({ email })
-    console.log(user)
+
     if (!user) {
       // @ts-ignore
-      return done(null, false, console.log('no user found'))
+      return done(null, false)
     }
     // @ts-ignore
-    if (!user.validPassword(password)) {
+    if (!validPassword(password, user.password)) {
       console.log('contra incorrecta')
       return done(null, false)
     }
