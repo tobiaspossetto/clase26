@@ -1,0 +1,45 @@
+
+html
+
+
+    head
+
+   
+    body
+       
+        table
+            th nombre
+            th precio
+            th img
+
+            div(id='prods')
+
+        
+
+    script.
+        //fetch products when window is loaded
+        window.onload = () => {
+            fetch('/api/productos-test')
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                render(data);
+            }
+            )
+        }
+
+        function render(data) {
+          
+            const html = data.map(elem => {
+                return(`
+                    <tr>
+                        <td>${elem.name}</td>
+
+                         <td>${elem.price}</td>
+                         <td><img src=${elem.image}/></td>
+                    </tr>
+                    `)
+            }).join(" ");
+            document.getElementById('prods').innerHTML = html;
+        }
+
