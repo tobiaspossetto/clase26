@@ -6,21 +6,23 @@ const router = Router()
 
 // VISTAS WEB
 router.get('/signin', (req: Request, res: Response) => {
-  // @ts-ignore
   res.render('signin.pug')
 })
 router.get('/signup', (req: Request, res: Response) => {
-  // @ts-ignore
   res.render('signup.pug')
 })
 
 router.get('/', isAuth, (req:Request, res:Response) => {
-// @ts-ignore
-  res.render('products.pug', { username: req.user.email })
+  // @ts-ignore
+  res.render('products.pug', { username: req.session.passport.user.email })
 })
 
 router.get('/test', (req:Request, res:Response) => {
   res.render('test.pug')
+})
+
+router.get('/logout', (req:Request, res:Response) => {
+  res.render('logout.pug', { username: req.query.username })
 })
 
 // API
@@ -31,26 +33,40 @@ router.get('/api/productos-test', isAuth, (req:Request, res:Response) => {
 
 router.post('/api/signin', passport.authenticate('local-signin', {
   successRedirect: '/',
-  failureRedirect: '/errorAuth',
-  passReqToCallback: true
+  failureRedirect: '/signInError',
+  passReqToCallback: true,
+  failureMessage: true
 }))
 
 router.post('/api/signup', passport.authenticate('local-signup', {
   successRedirect: '/',
-  failureRedirect: '/signInError',
-  passReqToCallback: true
+  failureRedirect: '/signUpError',
+  passReqToCallback: true,
+  failureMessage: true
 }))
 
-router.get('/api/logout', isAuth, (req, res, next) => {
+router.post('/api/logout', isAuth, (req, res, next) => {
+  // @ts-ignore
+  const username = req.session.passport.user.email
   // @ts-ignore
   req.logout(function (err) {
     if (err) { return next(err) }
-    res.render('/logout.pug')
+    res.redirect('/logout?username=' + username)
   })
 })
 
-router.get('/errorAuth', (req, res) => {
-  console.log(req.body)
+router.get('/signUpError', (req, res) => {
+  // @ts-ignore
+  console.log(req.session)
+  // @ts-ignore
+  res.render('failSignup.pug', { msg: req.session.messages[req.session.messages.length - 1] })
+})
+
+router.get('/signInError', (req, res) => {
+  // @ts-ignore
+  console.log(req.session)
+  // @ts-ignore
+  res.render('failSignin.pug', { msg: req.session.messages[req.session.messages.length - 1] })
 })
 
 export default router

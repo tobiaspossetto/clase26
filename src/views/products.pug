@@ -7,8 +7,8 @@ html
         script(src='/socket.io/socket.io.js')
      
     body
-        h1 bienvenido #{nombre}
-        form(action='/api/logout', method='get')
+        h1 bienvenido #{username}
+        form(action='/api/logout', method='post')
          
             input(type='submit', value='LOGOUT')
         a(href="/api/productos") ver productos

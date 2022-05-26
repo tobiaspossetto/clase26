@@ -3,63 +3,78 @@ import { Strategy } from 'passport-local'
 import { User } from '../../db/models/user'
 
 import { validPassword } from '../../utils/validPassword'
+
 passport.serializeUser((user, done) => {
-  // @ts-ignore
   done(null, user)
 })
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id)
+  const user: any = await User.findById(id)
 
-  // @ts-ignore
-  done(null, { id: user._id, email: user.email })
+  done(null, { _id: user._id, email: user.email })
 })
 
-passport.use('local-signup', new Strategy({
-  usernameField: 'email',
-  passwordField: 'password',
-  passReqToCallback: true
-}, async (req, email, password, done) => {
-  const userExists = await User.find({ email })
+//* SINGUP
+passport.use(
+  'local-signup',
+  new Strategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+      passReqToCallback: true
+    },
+    async (req, email, password, done) => {
+      try {
+        const userExists = await User.find({ email })
+        console.log(userExists)
+        if (userExists.length > 0) {
+          return done(null, false, { message: 'Email already exists' })
+        } else {
+          const newUser = new User()
 
-  if (userExists) {
-    return done(null, false)
-  } else {
-    const newUser = new User()
-    // @ts-ignore
-    newUser.email = email
-    // @ts-ignore
-    newUser.password = newUser.encryptPassword(password)
+          newUser.email = email
 
-    await newUser.save()
+          newUser.password = newUser.encryptPassword(password)
 
-    done(null, newUser)
-  }
-}))
+          await newUser.save()
+          // TODO: VER POR QUE ME DA ERROR AL USER IUser
+          const userFromDatabase: any = await User.findOne({ email })
 
-passport.use('local-signin', new Strategy({
-  usernameField: 'email',
-  passwordField: 'password',
-  passReqToCallback: true
-
-}, async (req, email, password, done) => {
-  try {
-    console.log('BUSCANDO...')
-
-    const user = await User.findOne({ email })
-
-    if (!user) {
-      // @ts-ignore
-      return done(null, false)
+          done(null, {
+            _id: userFromDatabase._id,
+            email: userFromDatabase.email
+          })
+        }
+      } catch (error) {
+        console.error(error)
+      }
     }
-    // @ts-ignore
-    if (!validPassword(password, user.password)) {
-      console.log('contra incorrecta')
-      return done(null, false)
-    }
+  )
+)
 
-    return done(null, user)
-  } catch (error) {
-    console.log(error)
-  }
-}))
+// * SIGNIN
+passport.use(
+  'local-signin',
+  new Strategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+      passReqToCallback: true
+    },
+    async (req, email, password, done) => {
+      try {
+        const user = await User.findOne({ email })
+        console.log(user)
+        if (user === null) {
+          return done(null, false, { message: 'User not found' })
+        } else if (!validPassword(password, user.password)) {
+          return done(null, false, { message: 'Wrong password' })
+        } else {
+          return done(null, { _id: user._id, email: user.email })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  )
+)
