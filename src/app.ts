@@ -5,11 +5,29 @@ import dotenv from 'dotenv'
 import session from 'express-session'
 import routes from './routes/routes'
 
+import minimist from 'minimist'
 import cookieParser from 'cookie-parser'
 import './middleware/passport/local-auth'
 import passport from 'passport'
 
+// exec('ls -lh', (err, stdout, stderr) => {
+//   if (err) {
+//     console.log('ERROR')
+//     console.error(err)
+//     return
+//   }
+//   if (stderr) {
+//     console.log('STDERR')
+//     console.error(stderr)
+//     return
+//   }
+//   console.log('STDOUT')
+//   console.log(stdout)
+// })
+
 const app = express()
+const args = minimist(process.argv.slice(2))
+export const PORT = args._[0] || process.env.PORT || 8080
 dotenv.config()
 app.use(morgan('dev'))
 app.use(cors())

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { fakeProducts } from '../controllers/testController'
 import { isAuth, apiAuth } from '../middleware/auth'
 import passport from 'passport'
+import randomController from '../controllers/randomController'
 const router = Router()
 
 // VISTAS WEB
@@ -67,6 +68,20 @@ router.get('/signInError', (req, res) => {
   console.log(req.session)
   // @ts-ignore
   res.render('failSignin.pug', { msg: req.session.messages[req.session.messages.length - 1] })
+})
+
+router.get('/randoms', randomController.randoms)
+
+router.get('/info', (req: Request, res: Response) => {
+  res.send({
+    args: process.argv.slice(2).join(' - '),
+    OSName: process.platform,
+    nodeVersion: process.version,
+    usageOfMemory: process.memoryUsage(),
+    execPath: process.execPath,
+    PID: process.pid,
+    folder: process.cwd()
+  })
 })
 
 export default router
